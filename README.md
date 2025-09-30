@@ -9,7 +9,7 @@ If you wish to support me here are some common links: [YouTube](https://www.yout
 If you are feeling particularly generous, my [PayPal](https://www.paypal.com/donate/?hosted_button_id=VWPG8MTMA3CSE).
 
 Any donations made are optional, highly appreciated, and will support my creative journey.\
-Recieving donations allows me to continue to open source my work for the public. \
+Recieving donations allows me to continue to open source my work for the public.
 
 # Included Script Information
 ### `Buyable_Item.verse`
