@@ -5,25 +5,40 @@ using { /UnrealEngine.com/Temporary/SpatialMath }
 using { /Verse.org/Simulation }
 using { Helper }
 
-hitbox := class(creative_device):
-    @editable StatHandler : Stat_Handler = Stat_Handler{}
-    @editable Info_Board : billboard_device = billboard_device{}
-    @editable Hitbox_Manipulator : prop_manipulator_device = prop_manipulator_device{}
-    @editable EVENT_Hitbox_Hit_Trigger : trigger_device = trigger_device{}
+<#
+ _____ ________   __ ________   __               
+/  __ \| ___ \ \ / /|___  /\ \ / /               
+| /  \/| |_/ /\ V /    / /  \ V /                
+| |    |    / /   \   / /    \ /                 
+| \__/\| |\ \/ /^\ \./ /___  | |                 
+ \____/\_| \_\/   \/\_____/  \_/                                                                  
+ _____ ______ _____  ___ _____ _____ _   _ _____ 
+/  __ \| ___ \  ___|/ _ \_   _|_   _| | | |  ___|
+| /  \/| |_/ / |__ / /_\ \| |   | | | | | | |__  
+| |    |    /|  __||  _  || |   | | | | | |  __| 
+| \__/\| |\ \| |___| | | || |  _| |_\ \_/ / |___ 
+ \____/\_| \_\____/\_| |_/\_/  \___/ \___/\____/ 
+ This script is responsible for the hitbox mechanics.
+    Includes a leveling ability to give more stat per hit. 
+#>
 
-    @editable var InitialLevelNeed : int = 100
-    @editable var Stat_Value : float = 0.0
-    @editable Stat_Type : StatEnum = StatEnum.Money
-    @editable XP_To_Give : float = 0.0
-    @editable PPL_Multiplier : float = 1.0
-    @editable Stat_Multiplier : float = 1.0
+hitbox := class(creative_device):
+    @editable StatHandler : Stat_Handler = Stat_Handler{} # The stat handler device
+    @editable Info_Board : billboard_device = billboard_device{} # The billboard attached to the hitbox prop
+    @editable Hitbox_Manipulator : prop_manipulator_device = prop_manipulator_device{} # A prop manipulator device attached to the hitbox prop
+    @editable EVENT_Hitbox_Hit_Trigger : trigger_device = trigger_device{} # An optional event trigger for when the hitbox has been hit
+
+    @editable var InitialLevelNeed : int = 100 # The initial amount of hits needed to increase in level
+    @editable var Stat_Value : float = 0.0 # The initial amount of value given per hit
+    @editable Stat_Type : StatEnum = StatEnum.Money # The stat type to give per hit
+    @editable XP_To_Give : float = 0.0 # The amount of level stat to give per hit
+    @editable PPL_Multiplier : float = 1.0 # Multiplies the InitialLevelNeed by this value every level
+    @editable Stat_Multiplier : float = 1.0 # Multiplies the Stat_Value by this value evert level
 
     var level : int = 1
     var HitCount : int = 0
-    var Stat_Scope : ?StatScope = false
 
     OnBegin <override>()<suspends> : void =
-        set Stat_Scope = option{StatHandler.GetStatScope()}
         Hitbox_Manipulator.DamagedEvent.Subscribe(OnHit)
         if (StrPerHit := Int[Stat_Value]):
             Info_Board.SetText(StringToMessage("Level: {level} \n {HitCount} / {InitialLevelNeed} \n Per Hit: {StrPerHit}"))
@@ -35,9 +50,9 @@ hitbox := class(creative_device):
         if (Stat_Type = StatEnum.Money) { StatHandler.IncreaseMoney(Agent, Stat_Value) }
         if (Stat_Type = StatEnum.Energy) { StatHandler.IncreaseEnergy(Agent, Stat_Value) }
         if (Stat_Type = StatEnum.Gemstone) { StatHandler.IncreaseGemstone(Agent, Stat_Value) }
-        if (Stat_Type = StatEnum.Rebirth) { StatHandler.GrantRebirth(Agent) }
+        if (Stat_Type = StatEnum.Rebirth) { spawn{ StatHandler.GrantRebirth(Agent)} }
  
-        StatHandler.IncreaseExp(Agent, XP_To_Give)
+        spawn{StatHandler.IncreaseExp(Agent, XP_To_Give)}
         EVENT_Hitbox_Hit_Trigger.Trigger(Agent)
         set HitCount += 1
         if (HitCount = InitialLevelNeed):
