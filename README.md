@@ -16,7 +16,7 @@ Recieving donations allows me to continue to open source my work for the public.
 
 # Included Script Information
 ## `Buyable_Item.verse`
-This script handles the purchasing and enabling of purchasable items in the tycoon. Features a buypad that must be stepped on to activate.
+This script handles the purchasing and enabling of purchasable items in the tycoon. Features a buypad that must be stepped on to activate.\
 <img width="512" height="464" alt="Buyable_Item.verse Variables" src="https://github.com/user-attachments/assets/c77722cb-5297-400b-b331-4d550d285078" />\
 <img width="212" height="145" alt="Buyable_Item.verse Outliner Setup" src="https://github.com/user-attachments/assets/97142fda-c111-4fe3-92a6-f921a42a2917" /> 
 | Variable | Description |
