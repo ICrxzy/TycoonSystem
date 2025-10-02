@@ -1,24 +1,44 @@
-# UEFN/Verse Tycoon Management System
-### A Work-in-progress project by Crxzy Creative. 
+<h1 align="center">UEFN/Verse Tycoon Management System</h1>
+<h3 align="center">A Work-in-progress project by Crxzy Creative.</h3>
 
-*Thanks for showing interest in my work!*\
-\
-This is my first major verse scripting project so dont expect perfection.\
-As of the initial snapshot (9/30/25) i have about a week of experience with verse.\
-This project is my learning project.\
-Expect the scripts to expand and become wider in scope as i add more configurations, and improvements.
+<p align="center">
+  <a href="https://github.com/ICrxzy/UEFN-Verse-WIP-Tycoon-System/blob/main/LICENSE"><img src="https://img.shields.io/badge/Code License-MIT-blue.svg" alt="Code License"></a>
+  <a href="https://github.com/ICrxzy/UEFN-Verse-WIP-Tycoon-System/blob/main/LICENSE-CC-BY"><img src="https://img.shields.io/badge/Content License-CC BY 4.0-lightgrey.svg" alt="Content License"></a><br>
+  Thanks for showing interest in my work!
+</p>
 
-If you wish to support me here are some common links: [YouTube](https://www.youtube.com/@CrxzyYT), [Twitch](https://www.twitch.tv/itsrealcrxzy), [Discord](https://discord.gg/RWRhKyby5D)\
-If you are feeling particularly generous, my [PayPal](https://www.paypal.com/donate/?hosted_button_id=VWPG8MTMA3CSE).
+<p align="center">
+This script is considered my personal learning project.<br>
+I'm open-sourcing this because it's not a very complex piece of code, and im still learning. <br>
+I see no reason it should be kept under wraps.
+</p>
 
-Any donations made are optional, highly appreciated, and will support my creative journey.\
-Recieving donations allows me to continue to open source my work for the public.
+<h2 align="center">Overview</h2>
+<p align="center">
+  This script will handle most functions of your typical tycoon experience.<br>
+  Buypads, Hitboxes, and Resource Exchanging. All possible with this setup.<br>
+  In depth detail can be found below, explaining the important user variables that the scripts use.<br>
+  Many improvements are planned, and suggestions for additions are always welcome.<br>
+</p>
 
-# Included Script Information
-## `Buyable_Item.verse`
-This script handles the purchasing and enabling of purchasable items in the tycoon. Features a buypad that must be stepped on to activate.\
-<img width="512" height="464" alt="Buyable_Item.verse Variables" src="https://github.com/user-attachments/assets/c77722cb-5297-400b-b331-4d550d285078" />\
+<h1 align="center">Socials, & Support.</h1>
+<p align="center">
+  <a href="https://discord.gg/RWRhKyby5D"><img src="https://i.postimg.cc/JzVdXd3Z/Discord-Banner.png" alt="Discord.gg"></a>
+  <a href="https://www.youtube.com/@CrxzyYT"><img src="https://i.postimg.cc/SxxVcF2q/YTBanner.png" alt="YouTube.com"></a>
+  <a href="https://www.twitch.tv/itsrealcrxzy"><img src="https://i.postimg.cc/9FYCrTZh/TWITCH.png" alt="Twitch.tv"></a>
+  <a href="https://x.com/ItsNotCrxzy"><img src="https://i.postimg.cc/2SSTnRbY/XCom-Banner.png" alt="X.com"></a>
+  <a href="https://www.paypal.com/donate/?hosted_button_id=VWPG8MTMA3CSE"><img src="https://i.postimg.cc/fRR5Yn3G/Paypal.png" alt="Paypal.me"></a><br>
+  Any donations made are optional, highly appreciated, and will support my creative journey.<br>
+  Recieving donations allows me to continue to open source my work for the public.
+</p>
+
+<h1 align="center">Included Script Information</h1>
+<h2 align="center">Buyable_Item.verse</h2>
+<p align="center">This script handles the purchasing and enabling of purchasable items in the tycoon. Features a buypad that must be stepped on to activate.<br><br>
+<img width="512" height="464" alt="Buyable_Item.verse Variables" src="https://github.com/user-attachments/assets/c77722cb-5297-400b-b331-4d550d285078" /><br>
 <img width="212" height="145" alt="Buyable_Item.verse Outliner Setup" src="https://github.com/user-attachments/assets/97142fda-c111-4fe3-92a6-f921a42a2917" /> 
+</p>
+
 | Variable | Description |
 | ------ | ------ |
 | StatHandler | The stat_handler.verse script. |
@@ -40,10 +60,12 @@ This script handles the purchasing and enabling of purchasable items in the tyco
 | XP_To_Give | The level stat value granted when purchased. |
 | EVENT_Purchased | Outgoing event trigger, commonly used to show another buypad. |
 
-### `Hitbox.verse`
-This script is attached to a prop used as a hitbox. Upon being hit, it will grant the player a specified income per hit, that gets upgraded the more hits it recieves.\
-<img width="509" height="414" alt="Hitbox.verse Variables" src="https://github.com/user-attachments/assets/5b503a41-2aba-4ddf-a251-a0d27a005777" />\
+<h2 align="center">Hitbox.verse</h2>
+<p align="center">This script is attached to a prop used as a hitbox. Upon being hit, it will grant the player a specified income per hit, that gets upgraded the more hits it recieves.<br><br>
+<img width="509" height="414" alt="Hitbox.verse Variables" src="https://github.com/user-attachments/assets/5b503a41-2aba-4ddf-a251-a0d27a005777" /><br>
 <img width="298" height="128" alt="Hitbox.verse Outliner Setup" src="https://github.com/user-attachments/assets/4ee04bda-c6b4-4ee7-a29c-87e68cc9b5bf" />
+</p>
+
 | Variable | Description |
 | ------ | ------ |
 | StatHandler | The stat_handler.verse script. |
@@ -63,10 +85,12 @@ This script is attached to a prop used as a hitbox. Upon being hit, it will gran
 | PPL_Multiplier | If `Use_Limited_Resource` is false; The Points Per Level multiplier, multiplied by the `InitialLevelNeed` on level up. |
 | Stat_Multiplier | If `Use_Limited_Resource` is false; The multiplier used to increase the `PerHit` value on level up. |
 
-### `Resource_Exchange.verse`
-This script handles the conversion of one stat to another. Features configurable values for both.\
-<img width="510" height="248" alt="Resource_Exchange.verse Variables" src="https://github.com/user-attachments/assets/bce90f0a-36ad-4176-8dc1-a205b2e15b85" />\
+<h2 align="center">Resource_Exchange.verse</h2>
+<p align="center">This script handles the conversion of one stat to another. Features configurable values for both.<br><br>
+<img width="510" height="248" alt="Resource_Exchange.verse Variables" src="https://github.com/user-attachments/assets/bce90f0a-36ad-4176-8dc1-a205b2e15b85" /><br>
 <img width="207" height="110" alt="Resource_Exchange.verse Outliner Setup" src="https://github.com/user-attachments/assets/c9cdf850-def9-48c4-8a59-3c2f044ce07b" />
+</p>
+
 | Variable | Description |
 | ------ | ------ |
 | StatHandler | The stat_handler.verse script. |
@@ -80,9 +104,11 @@ This script handles the conversion of one stat to another. Features configurable
 | Stat_To_Exchange | Enum variable to determine which stat is granted after conversion. |
 | XP_To_Give | The level stat value granted when purchased. |
 
-### `Stat_Handler.verse`
-This script handles the main functionality related to stat devices. Decreasing, Increasing, and Getting the stat values, or devices.\
+<h2 align="center">Stat_Handler.verse</h2>
+<p align="center">This script handles the main functionality related to stat devices. Decreasing, Increasing, and Getting the stat values, or devices.<br><br>
 <img width="504" height="220" alt="image" src="https://github.com/user-attachments/assets/34394da3-c543-4792-b847-5899bb261b53" />
+</p>
+
 | Variable | Description |
 | ------ | ------ |
 | Money_Stat_Device | The Primary stat device used. (Agent or Match Scope allowed) |
@@ -94,8 +120,8 @@ This script handles the main functionality related to stat devices. Decreasing, 
 | End_Game_Device | Device to end the game upon rebirth. |
 | Income_Multiplier_Per_Rebirth | The income multipler per rebirth. (BuyableIncome * Mult) (Where Mult = 1.0 + (RebirthCount * Income_Multiplier_Per_Rebirth)) |
 
-### `Helper.verse`
-This script is a project specific script that handles large or side functions that all scripts may or may not need to use. 
+<h2 align="center">Helper.verse</h2>
+<p align="center">This script is a project specific script that handles large or side functions that all scripts may or may not need to use.</p>
 
-### `Util.verse`
-A universal multi-project script featuring common utility functions like StringToMessage, or Variable conversions. 
+<h2 align="center">Util.verse</h2>
+<p align="center">A universal multi-project script featuring common utility functions like StringToMessage, or Variable conversions.</p>
