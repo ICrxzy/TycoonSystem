@@ -25,6 +25,7 @@ using { /Verse.org/Simulation }
 Buyable_Item := class(creative_device):
     # Device Connections
     @editable StatHandler : Stat_Handler = Stat_Handler{} # The stat handler device
+    @editable Accolade : accolades_device = accolades_device{} # The accolade reward tied to this script
     @editable ItemProp : creative_prop = creative_prop{} # The cosmetic item the player will buy
     @editable PadProp : creative_prop = creative_prop{} # The buy prop object the player uses to buy this
     @editable Buy_Trigger : trigger_device = trigger_device{} # The trigger attached to the buy pad
@@ -34,10 +35,11 @@ Buyable_Item := class(creative_device):
 
     # User Variables
     @editable var Pad_Visible : logic = false # Determines if the buy pad is visible at the start
-    @editable Stat_To_Buy_Uses_Siphon : logic = false # Determines if this pad will instead cost stat over time
+    @editable Do_Cost_Over_Time : logic = false # Determines if this pad will instead cost stat over time
     @editable Buyable_Name : string = "Item" # The name of the cosmetic prop
     @editable Price : float = 0.0 # The price of this buyable
     @editable Income : float = 0.0 # The amount of income given when this is bought
+    @editable Cost_Over_Time : float = 0.0 # The amount of cost over time this takes
     @editable Stat_To_Buy : StatEnum = StatEnum.Money # The stat used to purchase this item
     @editable Stat_To_Give : StatEnum = StatEnum.Energy  # The stat given after purchasing this item
     @editable XP_To_Give : float = 0.0 # The amount of level stat given when purchased
@@ -48,6 +50,8 @@ Buyable_Item := class(creative_device):
     var InitialPosition : vector3 = vector3{}
     var InitialRotation : rotation = rotation{}
     var HiddenPosition : vector3 = vector3{}
+
+    var Multiplier : float = 0.0
 
     OnBegin <override>()<suspends> : void = 
         Print("Begin Sequence.")
@@ -63,12 +67,13 @@ Buyable_Item := class(creative_device):
         Players := GetPlayspace().GetPlayers()
         if (PriceInt := Int[Price]):
             if (IncomeInt := Int[Income]): 
-                if (Stat_To_Buy_Uses_Siphon = false):
-                    if (Stat_To_Give = StatEnum.Rebirth):
-                        Print("{Buyable_Name} | Buyable Type: Rebirth")
-                        Info_Board.SetText(StringToMessage("{Buyable_Name}\n{PriceInt}\n\n+{IncomeInt}")) 
-                    else Info_Board.SetText(StringToMessage("{Buyable_Name}\n{PriceInt}\n\n+{IncomeInt}/s")), Print("{Buyable_Name} | Buyable Type: Normal")
-                else Info_Board.SetText(StringToMessage("{Buyable_Name}\n-{PriceInt}/s\n\n+{IncomeInt}/s"))
+                if(IntCostOT := Int[Cost_Over_Time]):
+                    if (Do_Cost_Over_Time = false):
+                        if (Stat_To_Give = StatEnum.Rebirth):
+                            Print("{Buyable_Name} | Buyable Type: Rebirth")
+                            Info_Board.SetText(StringToMessage("{Buyable_Name}\n{PriceInt}\n\n+{IncomeInt}")) 
+                        else Info_Board.SetText(StringToMessage("{Buyable_Name}\n{PriceInt}\n\n+{IncomeInt}/s")), Print("{Buyable_Name} | Buyable Type: Normal")
+                    else Info_Board.SetText(StringToMessage("{Buyable_Name}\n{PriceInt}\n-{IntCostOT}/s\n\n+{IncomeInt}/s"))
                 
         spawn { Helper.UpdateBillboardRotation(Players, Info_Board) }
         Buy_Trigger.TriggeredEvent.Subscribe(BuyAttempt)
@@ -89,13 +94,13 @@ Buyable_Item := class(creative_device):
 
     PurchaseSuccessful(Agent : agent) : void =
         EVENT_Purchased.Trigger()
+        Accolade.Award(Agent)
         Print("{Buyable_Name} | Successful Purchase!")
 
-        if(Stat_To_Buy_Uses_Siphon = false):
-            if (Stat_To_Buy = StatEnum.Money){ StatHandler.DecreaseMoney(Agent, Price), Print("{Buyable_Name} | Decreasing Money") }
-            if (Stat_To_Buy = StatEnum.Energy) { StatHandler.DecreaseEnergy(Agent, Price), Print("{Buyable_Name} | Decreasing Energy") }
-            if (Stat_To_Buy = StatEnum.Gemstone) { StatHandler.DecreaseGemstone(Agent, Price), Print("{Buyable_Name} | Decreasing Gemstones") }
-
+        if (Stat_To_Buy = StatEnum.Money){ StatHandler.DecreaseMoney(Agent, Price), Print("{Buyable_Name} | Decreasing Money") }
+        if (Stat_To_Buy = StatEnum.Energy) { StatHandler.DecreaseEnergy(Agent, Price), Print("{Buyable_Name} | Decreasing Energy") }
+        if (Stat_To_Buy = StatEnum.Gemstone) { StatHandler.DecreaseGemstone(Agent, Price), Print("{Buyable_Name} | Decreasing Gemstones") }
+        
         spawn{StatHandler.IncreaseExp(Agent, XP_To_Give)}
         Print("{Buyable_Name} | Giving Exp: {XP_To_Give}")
         spawn { GrantIncomeLoop(Agent) }
@@ -149,52 +154,57 @@ Buyable_Item := class(creative_device):
                         else PurchaseFailed(ValidAgent), Print("{Buyable_Name} / Rebirth | Not Enough Rebirths.")
 
     GrantIncomeLoop(Agent : agent) <suspends> : void =
+        if (Rebirths := StatHandler.GetRebirthStatValue[Agent]):
+            RebirthMult := StatHandler.GetRebirthMult()
+            set Multiplier = 1.0 + (Rebirths * RebirthMult)
+            FinalIncome := Income * Multiplier
+            Print("Multiplier: {Multiplier} | 1.0 + ({Rebirths} * {RebirthMult})\nIncome: {Income}, Final Income: {FinalIncome} | [Income * Multiplier]")
         if (Stat_To_Give = StatEnum.Money):
-            if (Stat_To_Buy_Uses_Siphon = true):
+            if (Do_Cost_Over_Time = true):
                 loop:
                     Sleep(1.0)
                     if (Stat_To_Buy = StatEnum.Gemstone):
-                        StatHandler.DecreaseGemstone(Agent, Price)
+                        StatHandler.DecreaseGemstone(Agent, Cost_Over_Time)
                         if (StatValue := StatHandler.GetGemstoneStatValue[Agent]):
                             if (StatValue >= Int[Price]):
-                            StatHandler.IncreaseMoney(Agent, Income)
+                            StatHandler.IncreaseMoney(Agent, Income * Multiplier)
                     if (Stat_To_Buy = StatEnum.Energy):
-                        StatHandler.DecreaseEnergy(Agent, Price)
+                        StatHandler.DecreaseEnergy(Agent, Cost_Over_Time)
                         if (StatValue := StatHandler.GetEnergyStatValue[Agent]):
                             if (StatValue >= Int[Price]):
-                            StatHandler.IncreaseMoney(Agent, Income)
+                            StatHandler.IncreaseMoney(Agent, Income * Multiplier)
             else loop{ Sleep(1.0), StatHandler.IncreaseMoney(Agent, Income)}   
 
         else if (Stat_To_Give = StatEnum.Energy):
-            if (Stat_To_Buy_Uses_Siphon = true):
+            if (Do_Cost_Over_Time = true):
                 loop:
                     Sleep(1.0)
                     if (Stat_To_Buy = StatEnum.Gemstone):
-                        StatHandler.DecreaseGemstone(Agent, Price)
+                        StatHandler.DecreaseGemstone(Agent, Cost_Over_Time)
                         if (StatValue := StatHandler.GetGemstoneStatValue[Agent]):
                             if (StatValue >= Int[Price]):
-                            StatHandler.IncreaseEnergy(Agent, Income)
+                            StatHandler.IncreaseEnergy(Agent, Income * Multiplier)
                     if (Stat_To_Buy = StatEnum.Money):
-                        StatHandler.DecreaseMoney(Agent, Price)
+                        StatHandler.DecreaseMoney(Agent, Cost_Over_Time)
                         if (StatValue := StatHandler.GetMoneyStatValue[Agent]):
                             if (StatValue >= Int[Price]):
-                            StatHandler.IncreaseEnergy(Agent, Income)
+                            StatHandler.IncreaseEnergy(Agent, Income * Multiplier)
             else loop{ Sleep(1.0), StatHandler.IncreaseEnergy(Agent, Income)} 
 
         else if (Stat_To_Give = StatEnum.Gemstone):
-            if (Stat_To_Buy_Uses_Siphon = true):
+            if (Do_Cost_Over_Time = true):
                 loop:
                     Sleep(1.0)
                     if (Stat_To_Buy = StatEnum.Energy):
-                        StatHandler.DecreaseEnergy(Agent, Price)
+                        StatHandler.DecreaseEnergy(Agent, Cost_Over_Time)
                         if (StatValue := StatHandler.GetEnergyStatValue[Agent]):
                             if (StatValue >= Int[Price]):
-                            StatHandler.IncreaseGemstone(Agent, Income)
+                            StatHandler.IncreaseGemstone(Agent, Income * Multiplier)
                     if (Stat_To_Buy = StatEnum.Money):
-                        StatHandler.DecreaseMoney(Agent, Price)
+                        StatHandler.DecreaseMoney(Agent, Cost_Over_Time)
                         if (StatValue := StatHandler.GetMoneyStatValue[Agent]):
                             if (StatValue >= Int[Price]):
-                            StatHandler.IncreaseGemstone(Agent, Income)
+                            StatHandler.IncreaseGemstone(Agent, Income * Multiplier)
             else loop{ Sleep(1.0), StatHandler.IncreaseGemstone(Agent, Income)} 
 
         else if (Stat_To_Give = StatEnum.Rebirth):

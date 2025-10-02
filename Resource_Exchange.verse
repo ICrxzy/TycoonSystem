@@ -22,6 +22,7 @@ using { /Verse.org/Simulation }
 
 Resource_Exchange := class(creative_device):
     @editable StatHandler : Stat_Handler = Stat_Handler{} # The stat handler device
+    @editable Accolade : accolades_device = accolades_device{} # The accolade reward tied to this script
     @editable Exchange_Button : button_device = button_device{} # The button device used to exchange stats
     @editable Funds_Message : hud_message_device = hud_message_device{} # The HUD Message for purchase status
     @editable Info_Board : billboard_device = billboard_device{} # The billboard attached to the button
@@ -74,6 +75,7 @@ Resource_Exchange := class(creative_device):
     PurchaseSuccessful(Agent : agent): void =
         var ExchangedStr : string = ""
         var ConvertedStr : string = ""
+        Accolade.Award(Agent)
 
         if (Stat_To_Convert = StatEnum.Money):
             StatHandler.DecreaseMoney(Agent, Amount_Needed_to_Convert)

@@ -21,6 +21,7 @@ using { /Verse.org/Simulation }
 #>
 
 StatEnum<public> := enum {Money, Energy, Gemstone, Rebirth}
+BasicStatEnum<public> := enum {Money, Energy, Gemstone}
 StatScope<public> := enum {Agent, Match}
 
 Stat_Handler<public> := class(creative_device):
@@ -31,6 +32,7 @@ Stat_Handler<public> := class(creative_device):
     @editable Rebirth_Stat_Device : stat_creator_device = stat_creator_device{} # The rebirth currency stat type (Must be Agent Scope)
     @editable Stat_Scope : StatScope = StatScope.Match # Set wether or not the Primary, and Secondary stats are set to Match, or Agent scope
     @editable End_Game_Device : end_game_device = end_game_device{} # The device used to end the game upon player rebirth
+    @editable Income_Multiplier_Per_Rebirth : float = 0.05 # Formula used in: Multiplier = 1.0 (Rebirths * Income_Multiplier_Per_Rebirth)
 
     # Getters for Stat Devices (For any niche adjustments)
     GetMoneyStatDevice<public>()<transacts> : stat_creator_device = return Money_Stat_Device
@@ -38,6 +40,7 @@ Stat_Handler<public> := class(creative_device):
     GetLevelStatDevice<public>()<transacts> : stat_creator_device = return Level_Stat_Device
     GetGemstoneStatDevice<public>()<transacts> : stat_creator_device = return Gemstone_Stat_Device
     GetRebirthStatDevice<public>()<transacts> : stat_creator_device = return Rebirth_Stat_Device
+    GetRebirthMult<public>()<transacts> : float = return Income_Multiplier_Per_Rebirth
 
     # Getters for stat values
     GetMoneyStatValue<public>(Agent : agent)<decides><transacts> : int = 
@@ -85,19 +88,11 @@ Stat_Handler<public> := class(creative_device):
 
     # Increase or Decrease the Premium Stat Value
     IncreaseGemstone<public>(Agent : agent, Amount : float) : void =
-        if (Stat_Scope = StatScope.Agent):
-            if (StatValue := Gemstone_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
-                if (Gemstone_Stat_Device.SetValue[Agent, StatValue + MagnitudeInt]){}
-        else:
-            if (StatValue := Gemstone_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
-                if (Gemstone_Stat_Device.SetValueForMatch[StatValue + MagnitudeInt]){}
+        if (StatValue := Gemstone_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+            if (Gemstone_Stat_Device.SetValue[Agent, StatValue + MagnitudeInt]){}
     DecreaseGemstone<public>(Agent : agent, Amount : float) : void =
-        if (Stat_Scope = StatScope.Agent):
-            if (StatValue := Gemstone_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
-                if (Gemstone_Stat_Device.SetValue[Agent, StatValue - MagnitudeInt]){}
-        else:
-            if (StatValue := Gemstone_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
-                if (Gemstone_Stat_Device.SetValueForMatch[StatValue - MagnitudeInt]){}
+        if (StatValue := Gemstone_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+            if (Gemstone_Stat_Device.SetValue[Agent, StatValue - MagnitudeInt]){}
             
     # Grant a rebirth point
     GrantRebirth<public>(Agent : agent)<suspends> : void =
