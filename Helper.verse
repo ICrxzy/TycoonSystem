@@ -42,7 +42,8 @@ PadPropTip<public><localizes>:message := "Buypad used by the player to purchase 
 BuyTrigTip<public><localizes>:message := "The trigger used to purchase this. | Activated by player."
 ShowPadTip<public><localizes>:message := "The trigger to show the buypad of this device. | commonly used with the EVENT_Purchased trigger of another Buyable_Item."
 BIFundsTip<public><localizes>:message := "HUD Element to show players the purchase status of this item."
-BIInfoBoardTip<public><localizes>:message := "The billboard used to to display to the player information about this item."
+BIInfoBoardTip<public><localizes>:message := "The billboard device displaying purchase information."
+BIInfoBoard2Tip<public><localizes>:message := "If `Require_Fuel` is on, The billboard device displaying fuel information."
 PadVisTip<public><localizes>:message := "Wether or not the pad is visible at game start."
 DoCOTTip<public><localizes>:message := "Wether or not the this item has a resource drain effect."
 NameTip<public><localizes>:message := "The name of the purchasable prop to show on the billboard."
@@ -58,6 +59,8 @@ StatFuelTip<public><localizes>:message := "If Require_Fuel is on, Determines whi
 EmptyFuelTip<public><localizes>:message := "If Require_Fuel is on, The length of time it takes for the fuel to empty."
 FuelBtnTip<public><localizes>:message := "The button device used to refuel this item."
 FuelCostTip<public><localizes>:message := "If Require_Fuel is on, The cost to refuel."
+
+# 
 
 # Hitbox.verse @editable tooltips
 HBAccoladeTip<public><localizes>:message := "Accolades device awarded when hit."
@@ -78,6 +81,7 @@ HBXPTip<public><localizes>:message := "The amount of level stat given to the pla
 PPLTip<public><localizes>:message := "If Use_Limited_Resource is off, Multiplies with Initial_Level_Need every time the hitbox levels up."
 StatMultTip<public><localizes>:message := "If Use_Limited_Resource is off, Multiplies with Stat_Value every time the hitbox levels up."
 MatStatTip<public><localizes>:message := "Wether the Material stats are using Agent, or Match scope."
+UseWidgetTip<public><localizes>:message := "Wether or not the device should use the default UI, or a custom widget."
 
 # Resource_Exchange.verse @editable tooltips
 REAccoladeTip<public><localizes>:message := "Accolades device granted when exchanged."

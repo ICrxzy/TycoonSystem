@@ -28,7 +28,7 @@ using { VTexture }
 
 hitbox := class(creative_device):
     @editable:
-        ToolTip := StatHandlerToolTip # The Stat_Handler.verse creative device placed in the level.
+        ToolTip := StatHandlerToolTip # The `Stat_Handler.verse` creative device placed in the level.
     StatHandler : Stat_Handler = Stat_Handler{}
     @editable:
         ToolTip := HBStatTypeTip # The type of stat to give the player when hit.
@@ -40,13 +40,13 @@ hitbox := class(creative_device):
         ToolTip := HBVisTip # Wether or not this hitbox is visible when the game starts.
     Visible_At_Start : logic = true
     @editable:
-        ToolTip := ExpireTip # If Use_Limited_Resource is on, The number of hits required to destroy this prop.
+        ToolTip := ExpireTip # If `Use_Limited_Resource` is on, The number of hits required to destroy this prop.
     Hits_To_Destroy : int = 10
     @editable:
-        ToolTip := LvlNeedTip # If Use_Limited_Resource is off, The number of hits needed to increase the level of the hitbox.
+        ToolTip := LvlNeedTip # If `Use_Limited_Resource` is off, The number of hits needed to increase the level of the hitbox.
     var Initial_Level_Need : int = 25 
     @editable:
-        ToolTip := RespawnTip # If Use_Limited_Resource is on, The time it takes for the hitbox to respawn when destroyed.
+        ToolTip := RespawnTip # If `Use_Limited_Resource` is on, The time it takes for the hitbox to respawn when destroyed.
     Respawn_Time : float = 10.0
     @editable:
         ToolTip := HBStatTip # The amount of stat to give the player when hit.
@@ -55,10 +55,10 @@ hitbox := class(creative_device):
         ToolTip := HBXPTip # The amount of level stat given to the player when hit.
     Level_Increase : float = 2.0 
     @editable:
-        ToolTip := PPLTip # If Use_Limited_Resource is off, Multiplies with Initial_Level_Need every time the hitbox levels up.
+        ToolTip := PPLTip # If `Use_Limited_Resource` is off, Multiplies with Initial_Level_Need every time the hitbox levels up.
     Level_Point_Multiplier : float = 1.2 
     @editable:
-        ToolTip := StatMultTip # If Use_Limited_Resource is off, Multiplies with Stat_Value every time the hitbox levels up.
+        ToolTip := StatMultTip # If `Use_Limited_Resource` is off, Multiplies with Stat_Value every time the hitbox levels up.
     Stat_Multiplier : float = 1.5 
     
     @editable:
@@ -69,7 +69,10 @@ hitbox := class(creative_device):
     Billboard_Device : billboard_device = billboard_device{}
     @editable:
         ToolTip := HBMessageTip # HUD Message shown to the hitting player displaying income information.
-    HUD_Message : hud_message_device = hud_message_device{}
+    Custom_Message_Widget : hud_message_device = hud_message_device{}
+    @editable:
+        ToolTip := UseWidgetTip # Wether or not the device should use the default UI, or a custom widget.
+    Use_Custom_Widget : logic = false
     @editable:
         ToolTip := HBManipTip # Prop Manipulator device attached to the Hitbox Prop.
     Hitbox_Manipulator : prop_manipulator_device = prop_manipulator_device{}
@@ -122,10 +125,9 @@ hitbox := class(creative_device):
             else Billboard_Device.SetText(StringToMessage("\n{HitCount} / {Hits_To_Destroy}\nPer Hit: {PerHit}"))
             
         Players := GetPlayspace().GetPlayers()
-        InitUI(Players)
         spawn { Helper.UpdateBillboardRotation(Players, Billboard_Device) }
 
-    InitUI(Players : []player) : void =
+    InitUI(Agent : agent) : void =
         ValueText.SetVisibility(widget_visibility.Hidden)
         MoneyStatImage.SetVisibility(widget_visibility.Hidden)
         EnergyStatImage.SetVisibility(widget_visibility.Hidden)
@@ -144,9 +146,8 @@ hitbox := class(creative_device):
             DefaultTextSize := 50.0
 
         UIWidget : canvas = CreateUserUI()
-        for (plr : Players):
-            if (PlayerObj := player[plr], PlayerUI := GetPlayerUI[PlayerObj]):
-                PlayerUI.AddWidget(UIWidget)
+        if (PlayerObj := player[Agent], PlayerUI := GetPlayerUI[PlayerObj]):
+            PlayerUI.AddWidget(UIWidget)
 
     CreateUserUI<private>() : canvas =
         UICanvas : canvas = canvas:
@@ -199,48 +200,52 @@ hitbox := class(creative_device):
                         Maximum := vector2{X := 0.55, Y := 0.5}    
 
     ShowHideUIText()<suspends> : void =
-        ValueText.SetVisibility(widget_visibility.Visible)
-        ValueText.SetShadowOpacity(1.0)
-        Sleep(0.5)
-        ValueText.SetVisibility(widget_visibility.Hidden)
-        ValueText.SetShadowOpacity(0.0)
+        if (Use_Custom_Widget = true):
+            if (PerHit := Int[Stat_Value]):
+                Custom_Message_Widget.Show(StringToMessage("+{PerHit}"))
+            Sleep(0.5)
+            Custom_Message_Widget.Hide()
+        else:
+            ValueText.SetVisibility(widget_visibility.Visible)
+            ValueText.SetShadowOpacity(1.0)
+            Sleep(0.5)
+            ValueText.SetVisibility(widget_visibility.Hidden)
+            ValueText.SetShadowOpacity(0.0)
 
     ShowHideUITextures()<suspends> : void =
-        if (Stat_Type = BasicStatEnum.Money):
-            MoneyStatImage.SetVisibility(widget_visibility.Visible)
-            Print("Money UI")
-        if (Stat_Type = BasicStatEnum.Energy):
-            EnergyStatImage.SetVisibility(widget_visibility.Visible)
-            Print("Energy UI")
-        if (Stat_Type = BasicStatEnum.Gemstone):
-            GemstoneStatImage.SetVisibility(widget_visibility.Visible)
-            Print("Gem UI")
-        if (Stat_Type = BasicStatEnum.Wood):
-            WoodStatImage.SetVisibility(widget_visibility.Visible)
-            Print("Wood UI")
-        if (Stat_Type = BasicStatEnum.Stone):
-            StoneStatImage.SetVisibility(widget_visibility.Visible)
-            Print("Stone")
-        if (Stat_Type = BasicStatEnum.Metal):
-            MetalStatImage.SetVisibility(widget_visibility.Visible)
-            Print("Metal UI")
-        Sleep(0.5)
-        if (Stat_Type = BasicStatEnum.Money):
-            MoneyStatImage.SetVisibility(widget_visibility.Hidden)
-        if (Stat_Type = BasicStatEnum.Energy):
-            EnergyStatImage.SetVisibility(widget_visibility.Hidden)
-        if (Stat_Type = BasicStatEnum.Gemstone):
-            GemstoneStatImage.SetVisibility(widget_visibility.Hidden)
-        if (Stat_Type = BasicStatEnum.Wood):
-            WoodStatImage.SetVisibility(widget_visibility.Hidden)
-        if (Stat_Type = BasicStatEnum.Stone):
-            StoneStatImage.SetVisibility(widget_visibility.Hidden)
-        if (Stat_Type = BasicStatEnum.Metal):
-            MetalStatImage.SetVisibility(widget_visibility.Hidden)
-
+        if (Use_Custom_Widget = false):
+            if (Stat_Type = BasicStatEnum.Money):
+                MoneyStatImage.SetVisibility(widget_visibility.Visible)
+                Print("Money UI")
+            if (Stat_Type = BasicStatEnum.Energy):
+                EnergyStatImage.SetVisibility(widget_visibility.Visible)
+                Print("Energy UI")
+            if (Stat_Type = BasicStatEnum.Gemstone):
+                GemstoneStatImage.SetVisibility(widget_visibility.Visible)
+                Print("Gem UI")
+            if (Stat_Type = BasicStatEnum.Wood):
+                WoodStatImage.SetVisibility(widget_visibility.Visible)
+                Print("Wood UI")
+            if (Stat_Type = BasicStatEnum.Stone):
+                StoneStatImage.SetVisibility(widget_visibility.Visible)
+                Print("Stone")
+            if (Stat_Type = BasicStatEnum.Metal):
+                MetalStatImage.SetVisibility(widget_visibility.Visible)
+                Print("Metal UI")
+            Sleep(0.5)
+            if (Stat_Type = BasicStatEnum.Money):
+                MoneyStatImage.SetVisibility(widget_visibility.Hidden)
+            if (Stat_Type = BasicStatEnum.Energy):
+                EnergyStatImage.SetVisibility(widget_visibility.Hidden)
+            if (Stat_Type = BasicStatEnum.Gemstone):
+                GemstoneStatImage.SetVisibility(widget_visibility.Hidden)
+            if (Stat_Type = BasicStatEnum.Wood):
+                WoodStatImage.SetVisibility(widget_visibility.Hidden)
+            if (Stat_Type = BasicStatEnum.Stone):
+                StoneStatImage.SetVisibility(widget_visibility.Hidden)
+            if (Stat_Type = BasicStatEnum.Metal):
+                MetalStatImage.SetVisibility(widget_visibility.Hidden)
     ShowHitbox(Agent : ?agent) : void = if (Hitbox_Prop.TeleportTo[InitialPosition, InitialRotation]):
-    
-
     OnHit(Agent : agent) : void =
         if (Stat_Type = BasicStatEnum.Wood) { StatHandler.IncreaseWood(Agent, Stat_Value), Print("Wood") }
         if (Stat_Type = BasicStatEnum.Stone) { StatHandler.IncreaseStone(Agent, Stat_Value), Print("Stone") }
@@ -248,7 +253,7 @@ hitbox := class(creative_device):
         if (Stat_Type = BasicStatEnum.Money) { StatHandler.IncreaseMoney(Agent, Stat_Value), Print("Money") }
         if (Stat_Type = BasicStatEnum.Energy) { StatHandler.IncreaseEnergy(Agent, Stat_Value), Print("Energy") }
         if (Stat_Type = BasicStatEnum.Gemstone) { StatHandler.IncreaseGemstone(Agent, Stat_Value), Print("Gems") }
-        
+        InitUI(Agent)
         Accolade.Award(Agent)
         spawn{StatHandler.IncreaseExp(Agent, Level_Increase)}
         EVENT_Hitbox_Hit_Trigger.Trigger(Agent)

@@ -24,7 +24,7 @@ using { /Verse.org/Simulation }
 
 Buyable_Item := class(creative_device):
     @editable:
-        ToolTip := StatHandlerToolTip # The Stat_Handler.verse creative device placed in the level.
+        ToolTip := StatHandlerToolTip # The `Stat_Handler.verse` creative device placed in the level.
     StatHandler : Stat_Handler = Stat_Handler{}
     @editable:
         ToolTip := ItemPropsTip # Item props to be spawned when this is purchased.
@@ -40,7 +40,7 @@ Buyable_Item := class(creative_device):
         ToolTip := Stat2GiveTip # The stat to give when this item is purchased.
     Stat_To_Give : StatEnum = StatEnum.Energy
     @editable:
-        ToolTip := StatFuelTip # If Require_Fuel is on, Determines which stat is used as fuel.
+        ToolTip := StatFuelTip # If `Require_Fuel` is on, Determines which stat is used as fuel.
     Fuel_Stat : BasicStatEnum = BasicStatEnum.Wood
     @editable:
         ToolTip := PadVisTip # Wether or not the pad is visible at game start.
@@ -58,13 +58,13 @@ Buyable_Item := class(creative_device):
         ToolTip := IncomeTip # The income provided by this item every second when purchased.
     Income : float = 2.0
     @editable:
-        ToolTip := COTTip # If Cost_Over_Time is on, The amount of stat drained per second.
+        ToolTip := COTTip # If `Cost_Over_Time` is on, The amount of stat drained per second.
     Cost_Over_Time : float = 0.0 
     @editable:
-        ToolTip := FuelCostTip # If Require_Fuel is on, The cost to refuel.
+        ToolTip := FuelCostTip # If `Require_Fuel` is on, The cost to refuel.
     Refuel_Cost : float = 0.0 
     @editable:
-        ToolTip := EmptyFuelTip # If Require_Fuel is on, The length of time it takes for the fuel to empty.
+        ToolTip := EmptyFuelTip # If `Require_Fuel` is on, The length of time it takes for the fuel to empty.
     var Time_Before_Empty : float = 0.0 
     @editable:
         ToolTip := BIXPTip # The amount of level stat to increase when purchased.
@@ -83,7 +83,7 @@ Buyable_Item := class(creative_device):
         ToolTip := BuyTrigTip # The trigger used to purchase this. | Activated by player.
     Buy_Trigger : trigger_device = trigger_device{}
     @editable:
-        ToolTip := ShowPadTip # The trigger to show the buypad of this device. | commonly used with the EVENT_Purchased trigger of another Buyable_Item.
+        ToolTip := ShowPadTip # The trigger to show the buypad of this device. | commonly used with the `EVENT_Purchased` trigger of another `Buyable_Item`.
     Show_Pad_Trigger : trigger_device = trigger_device{}
     @editable:
         ToolTip := FuelBtnTip # The button device used to refuel this item.
@@ -92,10 +92,10 @@ Buyable_Item := class(creative_device):
         ToolTip := BIFundsTip # HUD Element to show players the purchase status of this item.
     Funds_Message : hud_message_device = hud_message_device{}
     @editable:
-        ToolTip := BIInfoBoardTip # The billboard used to to display to the player information about this item.
+        ToolTip := BIInfoBoardTip # The billboard device displaying purchase information.
     Info_Board : billboard_device = billboard_device{}
     @editable:
-        ToolTip := BIInfoBoardTip # The billboard used to to display to the player information about this item.
+        ToolTip := BIInfoBoard2Tip # If `Require_Fuel` is on, The billboard device displaying fuel information.
     Fuel_Info_Board : billboard_device = billboard_device{}
 
     # These variables contain the buy pad transform. Allowing for easy showing and hiding of the buy pad prop, and its children.
