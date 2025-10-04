@@ -2,6 +2,7 @@ using { /Fortnite.com/Devices }
 using { /UnrealEngine.com/Temporary/Diagnostics }
 using { /Verse.org/Random }
 using { /Verse.org/Simulation }
+using { Helper }
 
 <#
  _____ ________   __ ________   __               
@@ -20,19 +21,47 @@ using { /Verse.org/Simulation }
     Supports a rebirth system via an end game method. 
 #>
 
-StatEnum<public> := enum {Money, Energy, Gemstone, Rebirth}
-BasicStatEnum<public> := enum {Money, Energy, Gemstone}
+StatEnum<public> := enum {Money, Energy, Gemstone, Wood, Stone, Metal, Rebirth}
+BasicStatEnum<public> := enum {Money, Energy, Gemstone, Wood, Stone, Metal}
 StatScope<public> := enum {Agent, Match}
 
 Stat_Handler<public> := class(creative_device):
-    @editable Money_Stat_Device : stat_creator_device = stat_creator_device{} # The main currency stat type (Can be Match or Agent scope)
-    @editable Energy_Stat_Device : stat_creator_device = stat_creator_device{} # The secondary Currency stat type (Can be Match or Agent scope)
-    @editable Level_Stat_Device : stat_creator_device = stat_creator_device{} # The Level stat type (Must be Agent scope)
-    @editable Gemstone_Stat_Device : stat_creator_device = stat_creator_device{} # The premium currency stat type (Must be Agent scope)
-    @editable Rebirth_Stat_Device : stat_creator_device = stat_creator_device{} # The rebirth currency stat type (Must be Agent Scope)
-    @editable Stat_Scope : StatScope = StatScope.Match # Set wether or not the Primary, and Secondary stats are set to Match, or Agent scope
-    @editable End_Game_Device : end_game_device = end_game_device{} # The device used to end the game upon player rebirth
-    @editable Income_Multiplier_Per_Rebirth : float = 0.05 # Formula used in: Multiplier = 1.0 (Rebirths * Income_Multiplier_Per_Rebirth)
+    @editable:
+        ToolTip := MoneyStatTip # The Primary Stat device. | This stat can be either Agent or Match in scope.
+    Money_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := EnergyStatTip # The Secondary Stat device. | This stat can be either Agent or Match in scope.
+    Energy_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := LevelStatTip # The Level Stat device. | This stat MUST be Match in scope.
+    Level_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := GemStatTip # The Premium Stat device. | This stat MUST be Match in scope.
+    Gemstone_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := RebirthStatTip # The Rebirth Stat device. | This stat MUST be Match in scope.
+    Rebirth_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := WoodStatTip # The Wood Stat device. | This stat can be either Agent or Match in scope.
+    Wood_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := StoneStatTip # The Stone Stat device. | This stat can be either Agent or Match in scope.
+    Stone_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := MetalStatTip # The Metal Stat device. | This stat can be either Agent or Match in scope.
+    Metal_Stat_Device : stat_creator_device = stat_creator_device{}
+    @editable:
+        ToolTip := StatScopeTip # Wether the Primary, & Secondary stats are using Agent, or Match scope.
+    Currency_Stat_Scope : StatScope = StatScope.Match
+    @editable:
+        ToolTip := MatStatTip # Wether the Material stats are using Agent, or Match scope.
+    Material_Stat_Scope : StatScope = StatScope.Match
+    @editable:
+        ToolTip := EndGameTip  # The End Game Device used to goto the next round upon player rebirth.
+    End_Game_Device : end_game_device = end_game_device{}
+    @editable:
+        ToolTip := RebirthMultTip # The Multiplier per rebirth to be given for income generation. | Final Income = Income * Mult = Income * (1.0 + (RebirthCount * RebirthMult))
+    Rebirth_Multiplier : float = 0.05
 
     # Getters for Stat Devices (For any niche adjustments)
     GetMoneyStatDevice<public>()<transacts> : stat_creator_device = return Money_Stat_Device
@@ -40,30 +69,45 @@ Stat_Handler<public> := class(creative_device):
     GetLevelStatDevice<public>()<transacts> : stat_creator_device = return Level_Stat_Device
     GetGemstoneStatDevice<public>()<transacts> : stat_creator_device = return Gemstone_Stat_Device
     GetRebirthStatDevice<public>()<transacts> : stat_creator_device = return Rebirth_Stat_Device
-    GetRebirthMult<public>()<transacts> : float = return Income_Multiplier_Per_Rebirth
+    GetWoodStatDevice<public>()<transacts> : stat_creator_device = return Wood_Stat_Device
+    GetStoneStatDevice<public>()<transacts> : stat_creator_device = return Stone_Stat_Device
+    GetMetalStatDevice<public>()<transacts> : stat_creator_device = return Metal_Stat_Device
+    GetRebirthMult<public>()<transacts> : float = return Rebirth_Multiplier
 
     # Getters for stat values
     GetMoneyStatValue<public>(Agent : agent)<decides><transacts> : int = 
-        if (Stat_Scope = StatScope.Match):
+        if (Currency_Stat_Scope = StatScope.Match):
             return Money_Stat_Device.GetValueForMatch[]
         else return Money_Stat_Device.GetValue[Agent]
     GetEnergyStatValue<public>(Agent : agent)<decides><transacts> : int = 
-        if (Stat_Scope = StatScope.Match):
+        if (Currency_Stat_Scope = StatScope.Match):
             return Energy_Stat_Device.GetValueForMatch[]
         else return Energy_Stat_Device.GetValue[Agent]
+    GetWoodStatValue<public>(Agent : agent)<decides><transacts> : int = 
+        if (Material_Stat_Scope = StatScope.Match):
+            return Wood_Stat_Device.GetValueForMatch[]
+        else return Wood_Stat_Device.GetValue[Agent]
+    GetStoneStatValue<public>(Agent : agent)<decides><transacts> : int = 
+        if (Material_Stat_Scope = StatScope.Match):
+            return Stone_Stat_Device.GetValueForMatch[]
+        else return Stone_Stat_Device.GetValue[Agent]
+    GetMetalStatValue<public>(Agent : agent)<decides><transacts> : int = 
+        if (Material_Stat_Scope = StatScope.Match):
+            return Metal_Stat_Device.GetValueForMatch[]
+        else return Metal_Stat_Device.GetValue[Agent]
     GetGemstoneStatValue<public>(Agent : agent)<decides><transacts> : int = return Gemstone_Stat_Device.GetValue[Agent]
     GetRebirthStatValue<public>(Agent : agent)<decides><transacts> : int = return Rebirth_Stat_Device.GetValue[Agent]
 
     # Increase or Decrease the Primary Stat Value
     IncreaseMoney<public>(Agent : agent, Amount : float) : void =
-        if (Stat_Scope = StatScope.Agent):
+        if (Currency_Stat_Scope = StatScope.Agent):
             if (StatValue := Money_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
                 if (Money_Stat_Device.SetValue[Agent, StatValue + MagnitudeInt]){}
         else:
             if (StatValue := Money_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
                 if (Money_Stat_Device.SetValueForMatch[StatValue + MagnitudeInt]){}
     DecreaseMoney<public>(Agent : agent, Amount : float) : void =
-        if (Stat_Scope = StatScope.Agent):
+        if (Currency_Stat_Scope = StatScope.Agent):
             if (StatValue := Money_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
                 if (Money_Stat_Device.SetValue[Agent, StatValue - MagnitudeInt]){}
         else:
@@ -72,19 +116,67 @@ Stat_Handler<public> := class(creative_device):
 
     # Increase or Decrease the Secondary Stat Value
     IncreaseEnergy<public>(Agent : agent, Amount : float) : void =
-        if (Stat_Scope = StatScope.Agent):
+        if (Currency_Stat_Scope = StatScope.Agent):
             if (StatValue := Energy_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
                 if (Energy_Stat_Device.SetValue[Agent, StatValue + MagnitudeInt]){}
         else:
             if (StatValue := Energy_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
                 if (Energy_Stat_Device.SetValueForMatch[StatValue + MagnitudeInt]){}
     DecreaseEnergy<public>(Agent : agent, Amount : float) : void =
-        if (Stat_Scope = StatScope.Agent):
+        if (Currency_Stat_Scope = StatScope.Agent):
             if (StatValue := Energy_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
                 if (Energy_Stat_Device.SetValue[Agent, StatValue - MagnitudeInt]){}
         else:
             if (StatValue := Energy_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
                 if (Energy_Stat_Device.SetValueForMatch[StatValue - MagnitudeInt]){}
+
+    # Increase or Decrease the Wood Stat Value
+    IncreaseWood<public>(Agent : agent, Amount : float) : void =
+        if (Material_Stat_Scope = StatScope.Agent):
+            if (StatValue := Wood_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+                if (Wood_Stat_Device.SetValue[Agent, StatValue + MagnitudeInt]){}
+        else:
+            if (StatValue := Wood_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
+                if (Wood_Stat_Device.SetValueForMatch[StatValue + MagnitudeInt]){}
+    DecreaseWood<public>(Agent : agent, Amount : float) : void =
+        if (Material_Stat_Scope = StatScope.Agent):
+            if (StatValue := Wood_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+                if (Wood_Stat_Device.SetValue[Agent, StatValue - MagnitudeInt]){}
+        else:
+            if (StatValue := Wood_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
+                if (Wood_Stat_Device.SetValueForMatch[StatValue - MagnitudeInt]){}
+
+    # Increase or Decrease the Stone Stat Value
+    IncreaseStone<public>(Agent : agent, Amount : float) : void =
+        if (Material_Stat_Scope = StatScope.Agent):
+            if (StatValue := Stone_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+                if (Stone_Stat_Device.SetValue[Agent, StatValue + MagnitudeInt]){}
+        else:
+            if (StatValue := Stone_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
+                if (Stone_Stat_Device.SetValueForMatch[StatValue + MagnitudeInt]){}
+    DecreaseStone<public>(Agent : agent, Amount : float) : void =
+        if (Material_Stat_Scope = StatScope.Agent):
+            if (StatValue := Stone_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+                if (Stone_Stat_Device.SetValue[Agent, StatValue - MagnitudeInt]){}
+        else:
+            if (StatValue := Stone_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
+                if (Stone_Stat_Device.SetValueForMatch[StatValue - MagnitudeInt]){}
+
+    # Increase or Decrease the Metal Stat Value
+    IncreaseMetal<public>(Agent : agent, Amount : float) : void =
+        if (Material_Stat_Scope = StatScope.Agent):
+            if (StatValue := Metal_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+                if (Metal_Stat_Device.SetValue[Agent, StatValue + MagnitudeInt]){}
+        else:
+            if (StatValue := Metal_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
+                if (Metal_Stat_Device.SetValueForMatch[StatValue + MagnitudeInt]){}
+    DecreaseMetal<public>(Agent : agent, Amount : float) : void =
+        if (Material_Stat_Scope = StatScope.Agent):
+            if (StatValue := Metal_Stat_Device.GetValue[Agent], MagnitudeInt := Int[Amount]):
+                if (Metal_Stat_Device.SetValue[Agent, StatValue - MagnitudeInt]){}
+        else:
+            if (StatValue := Metal_Stat_Device.GetValueForMatch[], MagnitudeInt := Int[Amount]):
+                if (Metal_Stat_Device.SetValueForMatch[StatValue - MagnitudeInt]){}
 
     # Increase or Decrease the Premium Stat Value
     IncreaseGemstone<public>(Agent : agent, Amount : float) : void =
@@ -96,17 +188,9 @@ Stat_Handler<public> := class(creative_device):
             
     # Grant a rebirth point
     GrantRebirth<public>(Agent : agent)<suspends> : void =
-        Print("SH | Granting Rebirth")
         if (StatValue := Rebirth_Stat_Device.GetValue[Agent]):
-            Print("SH | Current Value: {StatValue}")
             if (Rebirth_Stat_Device.SetValue[Agent, StatValue + 1]){}
-        Print("SH | Granted Rebirth. Ending game in 3")
         Sleep(1.0)
-        Print("SH | 2")
-        Sleep(1.0)
-        Print("SH | 1")
-        Sleep(1.0)
-        Print("SH | Ending Game")
         End_Game_Device.Activate(Agent)
             
     # Increase the Level stat value

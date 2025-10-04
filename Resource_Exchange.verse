@@ -3,6 +3,7 @@ using { /UnrealEngine.com/Temporary/Diagnostics }
 using { /UnrealEngine.com/Temporary/UI }
 using { /Verse.org/Random }
 using { /Verse.org/Simulation }
+using { /UnrealEngine.com/Temporary/SpatialMath }
 
 <#
  _____ ________   __ ________   __               
@@ -21,86 +22,157 @@ using { /Verse.org/Simulation }
 #>
 
 Resource_Exchange := class(creative_device):
-    @editable StatHandler : Stat_Handler = Stat_Handler{} # The stat handler device
-    @editable Accolade : accolades_device = accolades_device{} # The accolade reward tied to this script
-    @editable Exchange_Button : button_device = button_device{} # The button device used to exchange stats
-    @editable Funds_Message : hud_message_device = hud_message_device{} # The HUD Message for purchase status
-    @editable Info_Board : billboard_device = billboard_device{} # The billboard attached to the button
+    @editable:
+        ToolTip := StatHandlerToolTip # The Stat_Handler.verse creative device placed in the level.
+    StatHandler : Stat_Handler = Stat_Handler{}
+    @editable:
+        ToolTip := NeedTip # The stat required to convert.
+    Stat_Needed : BasicStatEnum = BasicStatEnum.Money
+    @editable:
+        ToolTip := GiveTip # The stat given after conversion.
+    Stat_Given : BasicStatEnum = BasicStatEnum.Energy
+    @editable:
+        ToolTip := REVisTip # Wether or not the exchange is visible on start.
+    Visible_At_Start : logic = true
+    @editable:
+        ToolTip := ConvertTip # The amount needed to convert this stat.
+    Value_Needed : float = 100.0
+    @editable:
+        ToolTip := ExchangeTip # The amount given to the player when converted.
+    Value_To_Give : float = 50.0
+    @editable:
+        ToolTip := REXPTip # The level stat given when exchanged.
+    Level_Stat_Increase : float = 5.0
+    @editable:
+        ToolTip := REAccoladeTip # Accolades device granted when exchanged.
+    Accolade : accolades_device = accolades_device{}
+    @editable:
+        ToolTip := BtnTip # Button devices used to make an exchange attempt.
+    Exchange_Button : button_device = button_device{}
+    @editable:
+        ToolTip := REFundsTip # HUD Message device to display purchase status to the players UI.
+    Funds_Message : hud_message_device = hud_message_device{}
+    @editable:
+        ToolTip := REInfoBoardTip # Billboard device used to display exchange information.
+    Billboard_Device : billboard_device = billboard_device{}
+    @editable:
+        ToolTip := REShowTip # Incoming trigger event to show the exchange information.
+    Show_Exchange_Trigger : trigger_device = trigger_device{}
 
-    @editable Amount_Needed_to_Convert : float = 0.0 # The amount of stat value needed to convert
-    @editable Amount_Granted_After_Convert : float = 0.0 # The amount of stat value converted
-    @editable Stat_To_Convert : StatEnum = StatEnum.Money # The stat needed to convert
-    @editable Stat_To_Exchange : StatEnum = StatEnum.Energy # The stat gived after conversion
-    @editable XP_To_Give : float = 0.0 # The level stat value to give when converted
+    # These variables contain the buy pad transform. Allowing for easy showing and hiding of the buy pad prop, and its children.
+    var InitialTransform : transform = transform{}
+    var InitialPosition : vector3 = vector3{}
+    var InitialRotation : rotation = rotation{}
+    var HiddenPosition : vector3 = vector3{}
+    var ExchangedStr : string = ""
+    var ConvertedStr : string = ""
 
     OnBegin <override>()<suspends> : void = 
-        SetTexts
+        SetTexts()
+        Show_Exchange_Trigger.TriggeredEvent.Subscribe(ShowItem)
         Exchange_Button.InteractedWithEvent.Subscribe(AttemptExchange)
         Players := GetPlayspace().GetPlayers()
 
+    ShowItem(Agent : ?agent) : void = if (Exchange_Button.TeleportTo[InitialPosition, InitialRotation]):
     SetTexts() : void =
-        if (Stat_To_Convert = StatEnum.Money):
-            if (PriceInt := Int[Amount_Needed_to_Convert]):
-                if (IncomeInt := Int[Amount_Granted_After_Convert]):
-                    Exchange_Button.SetInteractionText(StringToMessage("Exchange {PriceInt} E-Bux for {IncomeInt} Energy."))
-                    Info_Board.SetText(StringToMessage("{PriceInt}\n\n{IncomeInt}"))
-        else if (Stat_To_Convert = StatEnum.Energy):
-            if (PriceInt := Int[Amount_Needed_to_Convert]):
-                if (IncomeInt := Int[Amount_Granted_After_Convert]): 
-                    Exchange_Button.SetInteractionText(StringToMessage("Exchange {PriceInt} Energy for {IncomeInt} E-Bux."))
-                    Info_Board.SetText(StringToMessage("{PriceInt}\nFor\n{IncomeInt}"))
-        else if (Stat_To_Convert = StatEnum.Gemstone):
-            if (PriceInt := Int[Amount_Needed_to_Convert]):
-                if (IncomeInt := Int[Amount_Granted_After_Convert]): 
-                    Exchange_Button.SetInteractionText(StringToMessage("Exchange {PriceInt} Gemstones for {IncomeInt} E-Bux."))
-                    Info_Board.SetText(StringToMessage("{PriceInt}\nFor\n{IncomeInt}"))
+        set InitialTransform = Exchange_Button.GetTransform()
+        set InitialPosition = InitialTransform.Translation
+        set InitialRotation = InitialTransform.Rotation
+        set HiddenPosition = InitialPosition + vector3{X := 0.0, Y := 0.0, Z := -500.0}
+
+        if (Visible_At_Start = false):
+            if (Exchange_Button.TeleportTo[HiddenPosition, InitialRotation]):
+        else:
+            if (Exchange_Button.TeleportTo[InitialPosition, InitialRotation]):
+
+        if (PriceInt := Int[Value_Needed]):
+            if (IncomeInt := Int[Value_To_Give]): 
+                Exchange_Button.SetInteractionText(StringToMessage("Exchange {ExchangedStr} for {ConvertedStr}"))
+                Billboard_Device.SetText(StringToMessage("{PriceInt}\nFor\n{IncomeInt}"))
 
     AttemptExchange(Agent : agent) : void = 
-        if (Stat_To_Convert = StatEnum.Money):
+        if (Stat_Needed = BasicStatEnum.Money):
             if (PlayerStat := StatHandler.GetMoneyStatValue[Agent]):
-                if (PriceInt := Int[Amount_Needed_to_Convert]):
+                if (PriceInt := Int[Value_Needed]):
                     if (PlayerStat >= PriceInt) { PurchaseSuccessful(Agent) }
                     else PurchaseFailed(Agent)
-        else if  (Stat_To_Convert = StatEnum.Energy):
+        else if  (Stat_Needed = BasicStatEnum.Energy):
             if (PlayerStat := StatHandler.GetEnergyStatValue[Agent]):
-                if (PriceInt := Int[Amount_Needed_to_Convert]):
+                if (PriceInt := Int[Value_Needed]):
                     if (PlayerStat >= PriceInt) { PurchaseSuccessful(Agent) }
                     else PurchaseFailed(Agent)
-        else if  (Stat_To_Convert = StatEnum.Gemstone):
+        else if  (Stat_Needed = BasicStatEnum.Gemstone):
             if (PlayerStat := StatHandler.GetGemstoneStatValue[Agent]):
-                if (PriceInt := Int[Amount_Needed_to_Convert]):
+                if (PriceInt := Int[Value_Needed]):
+                    if (PlayerStat >= PriceInt) { PurchaseSuccessful(Agent) }
+                    else PurchaseFailed(Agent)
+        else if  (Stat_Needed = BasicStatEnum.Wood):
+            if (PlayerStat := StatHandler.GetWoodStatValue[Agent]):
+                if (PriceInt := Int[Value_Needed]):
+                    if (PlayerStat >= PriceInt) { PurchaseSuccessful(Agent) }
+                    else PurchaseFailed(Agent)
+        else if  (Stat_Needed = BasicStatEnum.Stone):
+            if (PlayerStat := StatHandler.GetStoneStatValue[Agent]):
+                if (PriceInt := Int[Value_Needed]):
+                    if (PlayerStat >= PriceInt) { PurchaseSuccessful(Agent) }
+                    else PurchaseFailed(Agent)
+        else if  (Stat_Needed = BasicStatEnum.Metal):
+            if (PlayerStat := StatHandler.GetMetalStatValue[Agent]):
+                if (PriceInt := Int[Value_Needed]):
                     if (PlayerStat >= PriceInt) { PurchaseSuccessful(Agent) }
                     else PurchaseFailed(Agent)
 
     PurchaseSuccessful(Agent : agent): void =
-        var ExchangedStr : string = ""
-        var ConvertedStr : string = ""
         Accolade.Award(Agent)
 
-        if (Stat_To_Convert = StatEnum.Money):
-            StatHandler.DecreaseMoney(Agent, Amount_Needed_to_Convert)
-            if(IntValue := Int[Amount_Needed_to_Convert]):
+        if (Stat_Needed = BasicStatEnum.Money):
+            StatHandler.DecreaseMoney(Agent, Value_Needed)
+            if(IntValue := Int[Value_Needed]):
                 set ExchangedStr = "{IntValue} E-Bucks"
-        else if (Stat_To_Convert = StatEnum.Energy):  
-            StatHandler.DecreaseEnergy(Agent, Amount_Needed_to_Convert) 
-            if(IntValue := Int[Amount_Needed_to_Convert]):
+        else if (Stat_Needed = BasicStatEnum.Energy):  
+            StatHandler.DecreaseEnergy(Agent, Value_Needed) 
+            if(IntValue := Int[Value_Needed]):
                 set ExchangedStr = "{IntValue} Energy"
-        else if (Stat_To_Convert = StatEnum.Gemstone): 
-            StatHandler.DecreaseGemstone(Agent, Amount_Needed_to_Convert) 
-            if(IntValue := Int[Amount_Needed_to_Convert]):
+        else if (Stat_Needed = BasicStatEnum.Gemstone): 
+            StatHandler.DecreaseGemstone(Agent, Value_Needed) 
+            if(IntValue := Int[Value_Needed]):
                 set ExchangedStr = "{IntValue} Gemstones"
+        if (Stat_Needed = BasicStatEnum.Wood):
+            StatHandler.DecreaseWood(Agent, Value_Needed)
+            if(IntValue := Int[Value_Needed]):
+                set ExchangedStr = "{IntValue} Wood"
+        else if (Stat_Needed = BasicStatEnum.Stone):  
+            StatHandler.DecreaseStone(Agent, Value_Needed) 
+            if(IntValue := Int[Value_Needed]):
+                set ExchangedStr = "{IntValue} Stone"
+        else if (Stat_Needed = BasicStatEnum.Metal): 
+            StatHandler.DecreaseMetal(Agent, Value_Needed) 
+            if(IntValue := Int[Value_Needed]):
+                set ExchangedStr = "{IntValue} Metal"
     
-        if (Stat_To_Exchange = StatEnum.Money):
-            StatHandler.IncreaseMoney(Agent, Amount_Granted_After_Convert)
-            if(IntValue := Int[Amount_Granted_After_Convert]):
+        if (Stat_Given = BasicStatEnum.Money):
+            StatHandler.IncreaseMoney(Agent, Value_To_Give)
+            if(IntValue := Int[Value_To_Give]):
                 set ConvertedStr = "{IntValue} E-Bucks."
-        else if (Stat_To_Exchange = StatEnum.Energy):  
-            StatHandler.IncreaseEnergy(Agent, Amount_Granted_After_Convert) 
-            if(IntValue := Int[Amount_Granted_After_Convert]):
+        else if (Stat_Given = BasicStatEnum.Energy):  
+            StatHandler.IncreaseEnergy(Agent, Value_To_Give) 
+            if(IntValue := Int[Value_To_Give]):
                 set ConvertedStr = "{IntValue} Energy."
-        else if (Stat_To_Exchange = StatEnum.Gemstone): 
-            StatHandler.IncreaseGemstone(Agent, Amount_Granted_After_Convert) 
-            if(IntValue := Int[Amount_Granted_After_Convert]):
+        else if (Stat_Given = BasicStatEnum.Gemstone): 
+            StatHandler.IncreaseGemstone(Agent, Value_To_Give) 
+            if(IntValue := Int[Value_To_Give]):
                 set ConvertedStr = "{IntValue} Gemstones."
+        if (Stat_Given = BasicStatEnum.Wood):
+            StatHandler.IncreaseWood(Agent, Value_To_Give)
+            if(IntValue := Int[Value_To_Give]):
+                set ConvertedStr = "{IntValue} Wood."
+        else if (Stat_Given = BasicStatEnum.Stone):  
+            StatHandler.IncreaseStone(Agent, Value_To_Give) 
+            if(IntValue := Int[Value_To_Give]):
+                set ConvertedStr = "{IntValue} Stone."
+        else if (Stat_Given = BasicStatEnum.Metal): 
+            StatHandler.IncreaseMetal(Agent, Value_To_Give) 
+            if(IntValue := Int[Value_To_Give]):
+                set ConvertedStr = "{IntValue} Metal."
 
     PurchaseFailed(Agent : agent): void = Funds_Message.Show(StringToMessage("Insufficient Funds."))
