@@ -4,8 +4,10 @@
 <p align="center">
   <a href="https://github.com/ICrxzy/UEFN-Verse-WIP-Tycoon-System/blob/main/LICENSE"><img src="https://img.shields.io/badge/Code License-MIT-blue.svg" alt="Code License"></a>
   <a href="https://github.com/ICrxzy/UEFN-Verse-WIP-Tycoon-System/blob/main/LICENSE-CC-BY"><img src="https://img.shields.io/badge/Content License-CC BY 4.0-lightgrey.svg" alt="Content License"></a><br>
+  <a href="https://medal.tv/games/fortnite/clips/lexpKxNtIj2B-NK_8?invite=cr-MSxqOWIsNDQ2NDE4MTU&v=102">Check out the DEMO video</a><br>
   Thanks for showing interest in my work!
 </p>
+
 
 <p align="center">
 This script is considered my personal learning project.<br>
@@ -32,81 +34,92 @@ I see no reason it should be kept under wraps.
   Recieving donations allows me to continue to open source my work for the public.
 </p>
 
-<h1 align="center">Included Script Information</h1>
-<h2 align="center">Buyable_Item.verse</h2>
-<p align="center">This script handles the purchasing and enabling of purchasable items in the tycoon. Features a buypad that must be stepped on to activate.<br><br>
-<img width="512" height="464" alt="Buyable_Item.verse Variables" src="https://github.com/user-attachments/assets/c77722cb-5297-400b-b331-4d550d285078" /><br>
+<h1>Included Script Information</h1>
+<h2>Buyable_Item.verse</h2>
+<p>This script handles the purchasing and enabling of purchasable items in the tycoon. Features a buypad that must be stepped on to activate.<br><br>
+<img width="473" height="637" alt="image" src="https://github.com/user-attachments/assets/569a721e-e298-4151-8083-c7987571e606" /><br>
 <img width="212" height="145" alt="Buyable_Item.verse Outliner Setup" src="https://github.com/user-attachments/assets/97142fda-c111-4fe3-92a6-f921a42a2917" /> 
 </p>
 
 | Variable | Description |
 | ------ | ------ |
-| StatHandler | The stat_handler.verse script. |
-| Accolade | An accolades device to grant when purchased. |
-| ItemProp | The prop the player will purchase. |
-| PadProp | The buypad prop the player uses to purchase. |
-| Buy_Trigger | Trigger attached to the buypad to purchase. Set to `Activated by Player`. |
-| Show_Pad_Trigger | An incoming event to show the buypad, commonly used with another buyables `EVENT_Purchased` trigger.  |
-| Funds_Message | A HUD Message device responsible for showing purchase status to the player. |
-| Info_Board | Billboard device used to display buyable item information to the player. |
-| Pad_Visible | Determines wether or not the buypad is visible at start.  |
-| Do_Cost_Over_Time | Extra functionality allowing the buyable item to drain one resource type, for another.  |
-| Buyable_Name | The name of the purchased prop. Will be shown on the Info_Board. |
-| Price | The one time cost to purchase this item. |
-| Income | The income generated per second. |
-| Cost_Over_Time | If doing COT, The value subtracted from the players stat per second. |
-| Stat_To_Buy | Enum variable used to determine the required stat to purchase this item.  |
-| Stat_To_Give | Enum variable used to determine the stat given as income. |
-| XP_To_Give | The level stat value granted when purchased. |
-| EVENT_Purchased | Outgoing event trigger, commonly used to show another buypad. |
+| StatHandler | The `Stat_Handler.verse` creative device placed in the level. |
+| Item_Props | Item props to be spawned when this is purchased. |
+| Buyable_Name | The name of the purchasable prop to show on the billboard. |
+| Stat_To_Buy | The stat required to purchase this item. |
+| Stat_To_Give | The stat to give when this item is purchased. |
+| Fuel_Stat | If `Require_Fuel` is on, Determines which stat is used as fuel.  |
+| Pad_Visible | Wether or not the pad is visible at game start. |
+| Require_Fuel | Wether or not income generation requires fuel. |
+| Do_Cost_Over_Time | Wether or not the this item has a resource drain effect.  |
+| Price | The price to purchase this item.  |
+| Income | The income provided by this item every second when purchased. |
+| Cost_Over_Time | If `Cost_Over_Time` is on, The amount of stat drained per second. |
+| Refuel_Cost | If `Require_Fuel` is on, The cost to refuel. |
+| Time_Before_Empty | If `Require_Fuel` is on, The length of time it takes for the fuel to empty. |
+| XP_To_Give | The amount of level stat to increase when purchased.  |
+| Pad_Prop | Buypad used by the player to purchase this. |
+| Accolade | The accolades devices to award when this item is purchased. |
+| EVENT_Purchased | Outgoing event trigger to signal when this item purchased. |
+| Buy_Trigger | The trigger used to purchase this. | Activated by player. |
+| Show_Pad_Trigger | The trigger to show the buypad of this device. | commonly used with the `EVENT_Purchased` trigger of another `Buyable_Item.` |
+| Refuel_Button | The button device used to refuel this item. |
+| Funds_Message | HUD Element to show players the purchase status of this item. |
+| Info_Board | The billboard device displaying purchase information. |
+| Fuel_Info_Board | If `Require_Fuel` is on, The billboard device displaying fuel information. |
 
-<h2 align="center">Hitbox.verse</h2>
-<p align="center">This script is attached to a prop used as a hitbox. Upon being hit, it will grant the player a specified income per hit, that gets upgraded the more hits it recieves.<br><br>
-<img width="509" height="414" alt="Hitbox.verse Variables" src="https://github.com/user-attachments/assets/5b503a41-2aba-4ddf-a251-a0d27a005777" /><br>
+<h2>Hitbox.verse</h2>
+<p>This script is attached to a prop used as a hitbox. Upon being hit, it will grant the player a specified income per hit, that gets upgraded the more hits it recieves.<br><br>
+<img width="461" height="490" alt="image" src="https://github.com/user-attachments/assets/728b0006-1580-4716-acd8-9eaef247f516" /><br>
 <img width="298" height="128" alt="Hitbox.verse Outliner Setup" src="https://github.com/user-attachments/assets/4ee04bda-c6b4-4ee7-a29c-87e68cc9b5bf" />
 </p>
 
 | Variable | Description |
 | ------ | ------ |
 | StatHandler | The stat_handler.verse script. |
-| Accolade | An accolades device to grant when purchased. |
-| Info_Board | Billboard Device used to display Hitbox information to the player. |
-| Hitbox_Prop | The prop used as the hitbox. |
-| HUD_Message | The HUD Message device used to display the `PerHit` value on the HUD. |
-| Hitbox_Manipulator | Manipulator device attached to the hitbox prop. |
-| EVENT_Hitbox_Hit_Trigger | Outgoing trigger event for when the hitbox is damaged. |
-| Use_Limited_Resource | Toggle for if the hitbox should be destroyed after reaching the `Hits_Before_Expire` value. |
-| Hits_Before_Expire | If `Use_Limited_Resource` is true; The number of hits needed to destroy the hitbox. |
-| Respawn_Time | The time it takes for the hitbox prop to respawn after being destroyed. |
-| InitialLevelNeed | If `Use_Limited_Resource` is false; The number of hits needed to increase the level of the hitbox. |
-| Stat_Value | The value `PerHit` of this hitbox. |
-| Stat_Type | Enum variable for the stat given on hit. |
-| XP_To_Give | The level stat value granted when purchased. |
-| PPL_Multiplier | If `Use_Limited_Resource` is false; The Points Per Level multiplier, multiplied by the `InitialLevelNeed` on level up. |
-| Stat_Multiplier | If `Use_Limited_Resource` is false; The multiplier used to increase the `PerHit` value on level up. |
+| Stat_Type | The type of stat to give the player when hit. |
+| Use_Limited_Resource | BWhen set, turns this hitbox into a respawning, limited use type. (E.G Mining System) |
+| Visible_At_Start | Wether or not this hitbox is visible when the game starts. |
+| Hits_To_Destroy | If `Use_Limited_Resource` is on, The number of hits required to destroy this prop. |
+| Initial_Level_Need | If `Use_Limited_Resource` is off, The number of hits needed to increase the level of the hitbox. |
+| Respawn_Time | If `Use_Limited_Resource` is on, The time it takes for the hitbox to respawn when destroyed. |
+| Stat_Value | The amount of stat to give the player when hit. |
+| Level_Increase | The amount of level stat given to the player when hit. |
+| Level_Point_Multiplier | If `Use_Limited_Resource` is off, Multiplies with Initial_Level_Need every time the hitbox levels up. |
+| Stat_Multiplier | If `Use_Limited_Resource` is off, Multiplies with Stat_Value every time the hitbox levels up. |
+| Hitbox_Prop | Hitbox prop that the player will hit to gain stat points. |
+| Billboard_Device | Billboard_Device device to display hitbox information. |
+| Custom_Message_Widget | HUD Message shown to the hitting player displaying income information. |
+| Use_Custom_Widget | Wether or not the device should use the default UI, or a custom widget. |
+| Hitbox_Manipulator | Prop Manipulator device attached to the Hitbox Prop. |
+| Show_Hitbox_Trigger | Incoming event to show the hitbox. | Commonly used with the `EVENT_Purchased` trigger in the `Buyable_Item.verse` script. |
+| Accolade | Accolades device awarded when hit. |
+| EVENT_Hitbox_Hit_Trigger | Outgoing event for when the hitbox is hit by a player. |
 
-<h2 align="center">Resource_Exchange.verse</h2>
-<p align="center">This script handles the conversion of one stat to another. Features configurable values for both.<br><br>
-<img width="510" height="248" alt="Resource_Exchange.verse Variables" src="https://github.com/user-attachments/assets/bce90f0a-36ad-4176-8dc1-a205b2e15b85" /><br>
+<h2>Resource_Exchange.verse</h2>
+<p>This script handles the conversion of one stat to another. Features configurable values for both.<br><br>
+<img width="487" height="320" alt="image" src="https://github.com/user-attachments/assets/d7767289-f620-4dc5-bbcc-2ed014bb977c" /><br>
 <img width="207" height="110" alt="Resource_Exchange.verse Outliner Setup" src="https://github.com/user-attachments/assets/c9cdf850-def9-48c4-8a59-3c2f044ce07b" />
 </p>
 
 | Variable | Description |
 | ------ | ------ |
 | StatHandler | The stat_handler.verse script. |
-| Accolade | An accolades device to grant when purchased. |
-| Exchange_Button | Button used to activate this device. |
-| Funds_Message | HUD Element for displaying purchase status on players HUD. |
-| Info_Board | Billboard device used to display exchange information. |
-| Amount_Needed_to_Convert | The value of stat needed to convert. |
-| Amount_Granted_After_Convert | The amount of stat granted after conversion. |
-| Stat_To_Convert | Enum variable to determine which stat is needed to convert. |
-| Stat_To_Exchange | Enum variable to determine which stat is granted after conversion. |
-| XP_To_Give | The level stat value granted when purchased. |
+| Stat_Needed | The stat required to convert. |
+| Stat_Given | The stat given after conversion. |
+| Visible_At_Start | Wether or not the exchange is visible on start. |
+| Value_Needed | The amount needed to convert this stat. |
+| Value_To_Give | The amount given to the player when converted. |
+| Level_Stat_Increase | The level stat given when exchanged. |
+| Accolade | Accolades device granted when exchanged. |
+| Exchange_Button | Button devices used to make an exchange attempt. |
+| Funds_Message | HUD Message device to display purchase status to the players UI. |
+| Billboard_Device | Billboard device used to display exchange information. |
+| Show_Exchange_Trigger | Incoming trigger event to show the exchange information. |
 
-<h2 align="center">Stat_Handler.verse</h2>
-<p align="center">This script handles the main functionality related to stat devices. Decreasing, Increasing, and Getting the stat values, or devices.<br><br>
-<img width="504" height="220" alt="image" src="https://github.com/user-attachments/assets/34394da3-c543-4792-b847-5899bb261b53" />
+<h2>Stat_Handler.verse</h2>
+<p>This script handles the main functionality related to stat devices. Decreasing, Increasing, and Getting the stat values, or devices.<br><br>
+<img width="484" height="316" alt="image" src="https://github.com/user-attachments/assets/74b04272-43f7-4d29-9a4c-a03e0744be56" />
 </p>
 
 | Variable | Description |
@@ -116,12 +129,16 @@ I see no reason it should be kept under wraps.
 | Level_Stat_Device | The level stat device used. (Must be Agent Scope) |
 | Gemstone_Stat_Device | The Premium stat device used. (Must be Agent Scope) |
 | Rebirth_Stat_Device | The Rebirth stat device used. (Must be Agent Scope) |
-| Stat_Scope | Enum Variable to determine if the Primary and Secondary stats are Agent, or Match scope. |
+| Wood_Stat_Device | The Wood stat device used. (Agent or Match Scope allowed) |
+| Stone_Stat_Device | The Stone Stat device used. (Agent or Match Scope allowed) |
+| Metal_Stat_Device | The Metal Stat device used. (Agent or Match Scope allowed) |
+| Currency_Stat_Scope | Wether the Primary, & Secondary stats are using Agent, or Match scope. |
+| Material_Stat_Scope | Wether the Material stats are using Agent, or Match scope. |
 | End_Game_Device | Device to end the game upon rebirth. |
-| Income_Multiplier_Per_Rebirth | The income multipler per rebirth. (BuyableIncome * Mult) (Where Mult = 1.0 + (RebirthCount * Income_Multiplier_Per_Rebirth)) |
+| Income_Multiplier_Per_Rebirth | The Multiplier per rebirth to be given for income generation. | Final Income = Income * Mult = Income * (1.0 + (RebirthCount * RebirthMult)) |
 
-<h2 align="center">Helper.verse</h2>
-<p align="center">This script is a project specific script that handles large or side functions that all scripts may or may not need to use.</p>
+<h2>Helper.verse</h2>
+<p>This script is a project specific script that handles large or side functions that all scripts may or may not need to use.</p>
 
-<h2 align="center">Util.verse</h2>
-<p align="center">A universal multi-project script featuring common utility functions like StringToMessage, or Variable conversions.</p>
+<h2>Util.verse</h2>
+<p>A universal multi-project script featuring common utility functions like StringToMessage, or Variable conversions.</p>
