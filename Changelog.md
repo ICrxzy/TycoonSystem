@@ -1,6 +1,6 @@
 <h1 align="center">Verse Tycoon Changelog</h1>
 
-## *Version 0.31.0* | Untested
+## *Version 0.31.0*
 - Added three (3) new stat types. Wood, Stone, & Metal. 
 - Changed `Stat_Scope` to `Currency_Stat_Scope`, & `Material_Stat_Scope`
 	- Currency Stats are Money, & Energy.
@@ -19,4 +19,5 @@
 - Multiple items can now be added to a buy pad, allowing for much bigger purchases.
 - Added VerseUI to `Hitbox.verse`
 	- If you wish to do custom HUDs, the HUD Message device is still supported. 
+
 - Maybe some more things I forgot to write down.
